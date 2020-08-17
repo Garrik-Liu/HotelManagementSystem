@@ -42,4 +42,17 @@ footer p {
     margin-left: 10px;
 }
 
-.room_card {}
+.room_card {
+    cursor: pointer;
+}
+
+.room_non-avaliable {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.check-list-item {
+    display: flex;
+    justify-content: space-between;
+}
