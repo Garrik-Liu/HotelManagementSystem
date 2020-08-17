@@ -61,6 +61,9 @@ $(document).ready(function() {
         if (loginState == null) {
             $('#reserveBtnAlert').show();
             $('#reserveBtnAlert').text("Please log in first!");
+        } else if (loginState.role == "receptionist") {
+            $('#reserveBtnAlert').show();
+            $('#reserveBtnAlert').text("Receptionist cannot reserve a room!");
         } else {
             $('#reserveBtnAlert').hide();
 
@@ -198,10 +201,6 @@ $(document).ready(function() {
       `);
     }
 
-    function myFunction() {
-        console.log(123);
-    }
-
     function getReservation() {
         $.ajax({
             type: "GET",
@@ -216,7 +215,7 @@ $(document).ready(function() {
                       <li class="list-group-item check-list-item">
                         <span>Room: ${item.roomId} | Email: ${item.userEmail}</span>
                         <div class="btn-group">
-                            <button type="button" class="check-in-btn btn btn-primary">Check In</button>
+                            <button type="button" class="check-btn check-in-btn btn btn-primary">Check In</button>
                         </div>
                       </li>
                     `;
@@ -225,7 +224,7 @@ $(document).ready(function() {
                           <li class="list-group-item check-list-item">
                             <span>Room: ${item.roomId} | Email: ${item.userEmail}</span>
                             <div class="btn-group">
-                                <button type="button" class="check-out-btn btn btn-danger">Check Out</button>
+                                <button type="button" class="check-btn check-out-btn btn btn-danger">Check Out</button>
                             </div>
                           </li>
                         `;
@@ -234,11 +233,51 @@ $(document).ready(function() {
                     });
                     $('#reservationList').html(reservationListHTML);
 
-                    $(".check-in-btn").on('click', function() {
-                        console.log($(this).index());
-                    });
+                    const checkBtnList = document.getElementsByClassName("check-btn");
+
+                    for (var i = 0; i < checkBtnList.length; i++) {
+                        (function(index) {
+                            checkBtnList[index].addEventListener('click', () => {
+                                const data = reservationList[index];
+                                if (data.checkin == 'false') {
+                                    checkInRequest(data.roomId);
+                                } else {
+                                    checkOutRequest(data.roomId);
+                                }
+                            });
+                        })(i)
+                    }
+
                 }
             }
+        });
+    }
+
+    function checkInRequest(roomId) {
+        $.ajax({
+            type: "POST",
+            url: "http://liu1g3.myweb.cs.uwindsor.ca/60334/project/server/server.php/checkIn",
+            data: {
+                "roomId": roomId,
+            },
+            error: function(result) {
+                getReservation();
+
+            },
+        });
+    }
+
+    function checkOutRequest(roomId) {
+        $.ajax({
+            type: "POST",
+            url: "http://liu1g3.myweb.cs.uwindsor.ca/60334/project/server/server.php/checkOut",
+            data: {
+                "roomId": roomId,
+            },
+            error: function(result) {
+                getReservation();
+                getRooms();
+            },
         });
     }
 });
